@@ -2,14 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Experimental.GlobalIllumination;
 
-public class PlayerMove : MonoBehaviour
+public class PlayerRBMove : MonoBehaviour
 {
     [SerializeField] Transform CamArm;
     [SerializeField] LayerMask groundLayer;
 
-    //Component
-    CharacterController _cc;
+    Rigidbody _rb;
 
     //Fields
     float speedOffset = 0.1f;
@@ -20,14 +20,14 @@ public class PlayerMove : MonoBehaviour
     float runSpeed = 8f;
     float minFlightSpeed = 30f;
     float maxFlightSpeed = 140f;
+    float falltime = 0f; //Easing 연산 필드
+    float reachFallTime = 0.5f; //추락 최대속도 도달시간
 
     int speedLerpRatio { get { return flightMode ? 30 : 10; } }
     int rotateLerpRatio = 10;
 
-    Vector3 _groundOffset = new Vector3(0, 0.1f, 0); //바닥 체크
     Vector3 _dir = Vector3.zero; //Atan2 위한 값
-    Vector3 _targetDir; //최종적으로 3인칭 이동할 방향
-    Vector3 _gravity = Vector3.zero;
+    Vector3 _vertical = Vector3.zero; //점프, 낙하, 추락
 
     //이동관련 공개 Fields
     public float speed { get; private set; }
@@ -35,13 +35,15 @@ public class PlayerMove : MonoBehaviour
     public bool flightMode = false;
     public bool isGrounded = false;
 
-    //회전관련 Fields
+    //회전관련 공개 Fields
     public Vector3? overrideLookTarget { get; set; }
-    public Vector3 targetDir { get; set; } //나중에 각도에 따른(내적,외적) 로직도 추가할 수 있으므로
+    public Vector3 targetDir { get; private set; } //카메라 방향 영향 받은 목표 방향
+    public Vector3 moveDir { get; private set; } //경사 고려한 실제 움직임 방향
 
     void Start()
     {
-        _cc = GetComponent<CharacterController>();
+        _rb = GetComponent<Rigidbody>();
+        _rb.interpolation = RigidbodyInterpolation.Interpolate;
 
         _initCameraRoatationX = CamArm.eulerAngles.x;
         _initCameraRoatationY = CamArm.eulerAngles.y;
@@ -49,22 +51,29 @@ public class PlayerMove : MonoBehaviour
 
     private void Update()
     {
-        GroundCheck();
-        Running();
+        GenericSpeedUpdate();
     }
 
-    private void LateUpdate()
+    private void FixedUpdate()
     {
         CameraRotate();
-        OnMove();
         KeepRotation();
+        GenericMove();
     }
 
-    void OnMove()
+    /// <summary>
+    /// 평범한 지상움직임을 위한 속도 보간
+    /// </summary>
+    void GenericSpeedUpdate()
     {
+        if (flightMode == true)
+            return;
+
+        isRunning = InputHandler.Instance.GetHold(KeyCode.LeftShift);
+
         float targetSpeed = isRunning ? runSpeed : walkSpeed;
 
-        if (InputParameter.Instance.MoveInput == Vector2.zero && flightMode == false)
+        if (InputParameter.Instance.MoveInput == Vector2.zero)
             targetSpeed = 0f;
 
         if (InputParameter.Instance.MoveInput == Vector2.zero) { targetSpeed = 0f; }
@@ -79,8 +88,6 @@ public class PlayerMove : MonoBehaviour
         {
             speed = targetSpeed;
         }
-
-        _cc.Move(_targetDir * speed * Time.deltaTime + _gravity * Time.deltaTime);
     }
 
     void CameraRotate()
@@ -88,7 +95,7 @@ public class PlayerMove : MonoBehaviour
         //입력값이 없을 땐 붕스마냥 가만히 있지만
         //하늘을 날고 있을땐 입력값 없어도 그냥 작동
         //3인칭으로 바라보는 방향을 가리킴
-        if (InputParameter.Instance.MoveInput != Vector2.zero || flightMode == true)
+        if (InputParameter.Instance.MoveInput != Vector2.zero)
         {
             _dir.x = InputParameter.Instance.MoveInput.x;
             _dir.z = InputParameter.Instance.MoveInput.y;
@@ -102,10 +109,7 @@ public class PlayerMove : MonoBehaviour
             //대상의 방향벡터를 구한다. 굳이 Normalized 할 필요 없을듯?
             Vector3 toTargetDir = overrideLookTarget.Value - transform.position;
 
-            if (flightMode)
-            {
-                toTargetDir.y = 0; //y축 회전만 하게 (고개 들거나 숙이지 않도록)
-            }
+            toTargetDir.y = 0; //y축 회전만 하게 (고개 들거나 숙이지 않도록)
 
             if (toTargetDir.sqrMagnitude > 0.01f) // 너무 가까울 땐 회전 무시
                 _targetRotation = Quaternion.LookRotation(toTargetDir).eulerAngles.y;
@@ -113,12 +117,12 @@ public class PlayerMove : MonoBehaviour
 
         //계속 null로 초기화해서 다른 스크립트에선 타겟 설정만 하게
         //즉, 타겟 설정은 Update문에서 해줄 것임
-        overrideLookTarget = null; 
+        overrideLookTarget = null;
 
         this.transform.rotation =
             Quaternion.Slerp(this.transform.rotation, Quaternion.Euler(0, _targetRotation, 0), rotateLerpRatio * Time.deltaTime);
 
-        _targetDir = (Quaternion.Euler(0, _targetRotation, 0) * Vector3.forward).normalized;
+        targetDir = (Quaternion.Euler(0, _targetRotation, 0) * Vector3.forward).normalized;
     }
 
     void KeepRotation()
@@ -127,19 +131,45 @@ public class PlayerMove : MonoBehaviour
             = Quaternion.Euler(_initCameraRoatationY + InputParameter.Instance.MouseLook.y, _initCameraRoatationX + InputParameter.Instance.MouseLook.x, 0);
     }
 
-    void Running()
+    private void GenericMove()
     {
-        isRunning = InputHandler.Instance.GetHold(KeyCode.LeftShift);
-    }
+        if (flightMode)
+            return;
 
-    void GroundCheck()
-    {
-        isGrounded = Physics.CheckSphere(this.transform.position - _groundOffset, _cc.radius, groundLayer);
+        RaycastHit hit;
 
+        if (Physics.Raycast(this.transform.position + Vector3.up * 0.2f, Vector3.down, out hit, 0.3f, groundLayer))
+        {
+            isGrounded = true;
+            Vector3 slopeNormal = hit.normal;
+
+            moveDir = Vector3.ProjectOnPlane(targetDir, slopeNormal).normalized;
+        }
+        else
+        {
+            moveDir = targetDir; //딱히 어딘가에 서있는 상태가 아니라면 그냥 이동
+            isGrounded = false;
+        }
+
+        //자연스러운 추락 위해 Easing 효과
         if (isGrounded)
         {
-            _gravity.y = -0.2f;
-            return;
+            falltime = 0f;
+            _vertical.y = 0f;
         }
+        else
+        {
+            falltime += Time.fixedDeltaTime;
+
+            float t = Mathf.Clamp01(falltime / reachFallTime);
+            _vertical.y = Mathf.Lerp(0f, Physics.gravity.y, t); //Easing 보단 Lerp가 자연스러운 것 같음
+        }
+
+        //어차피 speed 에서 0 ~ targetSpeed 까지 lerp됨
+        _rb.MovePosition(_rb.position + moveDir * Time.fixedDeltaTime * speed + _vertical * Time.fixedDeltaTime);
+
+#if UNITY_EDITOR
+        Debug.DrawLine(this.transform.position, this.transform.position + (Vector3.down * 0.1f), isGrounded ? Color.green : Color.red);
+#endif
     }
 }
