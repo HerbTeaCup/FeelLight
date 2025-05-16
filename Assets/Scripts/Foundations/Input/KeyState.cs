@@ -10,7 +10,7 @@ public class KeyState
     public bool Up { get; private set; }
 
     // 내부 타이머 (키 다운 트리거를 유지할 시간)
-    float _triggerBuffer = 0.05f;  // 0.1초 동안 트리거 유지
+    float _triggerBuffer = 0.05f;  // 0.05초 동안 트리거 유지
     float _timer = 0f;
 
     /// <summary>

@@ -19,12 +19,15 @@ public class InputHandler : MonoBehaviour
 
     private void Awake()
     {
+        //기존에 있었다?
         if(Instance != null && Instance != this)
         {
+            //그럼 자기 자신을 파괴하여 단일성을 확보
             Destroy(gameObject);
             return;
         }
 
+        //없다면 자기 자신으로 보호
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
@@ -55,7 +58,7 @@ public class InputHandler : MonoBehaviour
     }
 
     /// <summary>
-    /// 키보드 Trigger 상태를 가져옵니다. 사용시 반드시 LateUpdate에서 Consume를 호출해야 합니다.
+    /// 키보드 Trigger 상태를 가져옵니다. WaitForEndOfFrame에서 소비됩니다.
     /// </summary>
     public bool GetTrigger(KeyCode key, [CallerMemberName] string caller = "")
     {
@@ -69,14 +72,6 @@ public class InputHandler : MonoBehaviour
         GetOrAddKeyInput(key, caller);
 
         return _states[key].Up;
-    }
-
-    /// <summary>
-    /// GetTrigger 사용시 반드시 LateUpdate에서 호출해야 합니다. 트리거를 소비합니다.
-    /// </summary>
-    public bool Consume(KeyCode key)
-    {
-        return _states[key].Consume();
     }
 
     void GetOrAddKeyInput(KeyCode key, string caller)

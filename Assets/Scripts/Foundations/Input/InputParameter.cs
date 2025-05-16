@@ -50,6 +50,7 @@ public class InputParameter : MonoBehaviour
         mouseLook.x += mouseX;
         mouseLook.y -= mouseY;
 
+        //여기서 Clamp 안하면 계속 누적됨
         mouseLook.y = Mathf.Clamp(mouseLook.y, CameraRotator.minViewPointY, CameraRotator.maxViewPointY);
     }
 }

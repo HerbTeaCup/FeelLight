@@ -75,6 +75,7 @@ public class CameraRotator : MonoBehaviour
 
     void KeepRotation()
     {
+        //초기 회전값도 있기 때문에 여기서도 Clamp 해줘야함
         float pitch = Mathf.Clamp(_initCameraRoatationX + InputParameter.Instance.MouseLook.y, minViewPointY, maxViewPointY);
 
         float yaw = _initCameraRoatationY + InputParameter.Instance.MouseLook.x;
