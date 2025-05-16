@@ -14,9 +14,11 @@ public class CameraRotator : MonoBehaviour
     int rotateLerpRatio = 10;
 
     Vector3 _dir = Vector3.zero; //Atan2 위한 값
-
     public Vector3? overrideLookTarget { get; set; }
     public Vector3 targetDir { get; private set; } //카메라 방향 영향 받은 목표 방향
+
+    public static int minViewPointY = -60;
+    public static int maxViewPointY = 60;
 
     void Start()
     {
@@ -73,7 +75,10 @@ public class CameraRotator : MonoBehaviour
 
     void KeepRotation()
     {
-        CamArm.transform.rotation
-            = Quaternion.Euler(_initCameraRoatationY + InputParameter.Instance.MouseLook.y, _initCameraRoatationX + InputParameter.Instance.MouseLook.x, 0);
+        float pitch = Mathf.Clamp(_initCameraRoatationX + InputParameter.Instance.MouseLook.y, minViewPointY, maxViewPointY);
+
+        float yaw = _initCameraRoatationY + InputParameter.Instance.MouseLook.x;
+
+        CamArm.transform.rotation = Quaternion.Euler(pitch, yaw, 0);
     }
 }

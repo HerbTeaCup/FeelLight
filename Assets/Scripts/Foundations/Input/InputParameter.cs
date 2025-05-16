@@ -16,8 +16,6 @@ public class InputParameter : MonoBehaviour
 
     [Header("Mouse")]
     [SerializeField] float mouseSensitivity = 100f;
-    [SerializeField][Range(-90, -30)] int minViewPointY = -80;
-    [SerializeField][Range(30, 90)] int maxViewPointY = 80;
 
     // Start is called before the first frame update
     void Awake()
@@ -51,6 +49,7 @@ public class InputParameter : MonoBehaviour
 
         mouseLook.x += mouseX;
         mouseLook.y -= mouseY;
-        mouseLook.y = Mathf.Clamp(mouseLook.y, minViewPointY, maxViewPointY);
+
+        mouseLook.y = Mathf.Clamp(mouseLook.y, CameraRotator.minViewPointY, CameraRotator.maxViewPointY);
     }
 }
