@@ -36,6 +36,7 @@ public abstract class EffectableBaseMovement : BaseMovement, IEnvironmentalAffec
 
     public override void Move()
     {
+        Debug.Log($"EffectableBaseMovement Move!");
         //어차피 speed 에서 0 ~ targetSpeed 까지 lerp됨
         _rb.velocity = _stats.moveDir * _stats.speed + _stats.vertical + _extendForce;
     }

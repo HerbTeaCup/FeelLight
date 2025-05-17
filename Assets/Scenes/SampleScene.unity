@@ -2028,6 +2028,8 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
+  movementType: 0
+  vertical: {x: 0, y: 0, z: 0}
 --- !u!143 &364780391
 CharacterController:
   m_ObjectHideFlags: 0
@@ -8529,10 +8531,11 @@ GameObject:
   - component: {fileID: 2073691671}
   - component: {fileID: 2073691673}
   - component: {fileID: 2073691676}
-  - component: {fileID: 2073691669}
-  - component: {fileID: 2073691675}
-  - component: {fileID: 2073691677}
   - component: {fileID: 2073691678}
+  - component: {fileID: 2073691669}
+  - component: {fileID: 2073691677}
+  - component: {fileID: 2073691675}
+  - component: {fileID: 2073691679}
   m_Layer: 0
   m_Name: Player_rb
   m_TagString: Untagged
@@ -8555,6 +8558,8 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 9
+  movementType: 0
+  vertical: {x: 0, y: 0, z: 0}
 --- !u!95 &2073691671
 Animator:
   serializedVersion: 5
@@ -8680,6 +8685,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cbf771ccb7cda704ab535a87a3a4498b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2073691679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2073691668}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae69d5baeb5544046bb0a0399b01fc7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &2113864898
