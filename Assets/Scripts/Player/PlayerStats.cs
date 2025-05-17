@@ -13,7 +13,6 @@ public class PlayerStats : MonoBehaviour
     }
 
     [SerializeField] LayerMask groundLayer = 1 << 3;
-    CapsuleCollider _collider;
 
     public MovementType movementType = MovementType.Generic;
 
@@ -27,11 +26,6 @@ public class PlayerStats : MonoBehaviour
     /// ¹Ù´ÚÀ¸·Î ½î´Â Hit ¹Ù´Ú °ËÃâ
     /// </summary>
     public RaycastHit downHit { get; private set; }
-
-    private void Start()
-    {
-        _collider = GetComponent<CapsuleCollider>();
-    }
 
     private void Update()
     {
@@ -48,7 +42,7 @@ public class PlayerStats : MonoBehaviour
     {
         RaycastHit temp;
 
-        if (Physics.SphereCast(this.transform.position + Vector3.up * 0.4f, _collider.radius, Vector3.down, out temp, 0.3f, groundLayer))
+        if (Physics.Raycast(this.transform.position + Vector3.up * 0.2f, Vector3.down, out temp, 0.3f, groundLayer))
         {
             isGrounded = true;
         }
