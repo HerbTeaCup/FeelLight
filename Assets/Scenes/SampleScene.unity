@@ -1995,7 +1995,7 @@ MonoBehaviour:
   m_ShowCameraFrustum: 1
   m_IgnoreTimeScale: 0
   m_WorldUpOverride: {fileID: 0}
-  m_UpdateMethod: 2
+  m_UpdateMethod: 0
   m_BlendUpdateMethod: 1
   m_DefaultBlend:
     m_Style: 1
@@ -2025,7 +2025,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f1b82be1d4f9164698c5d37f39f4d1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementType: 0
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 8
 --- !u!143 &364780391
 CharacterController:
   m_ObjectHideFlags: 0
@@ -8550,7 +8552,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f1b82be1d4f9164698c5d37f39f4d1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementType: 0
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 9
 --- !u!95 &2073691671
 Animator:
   serializedVersion: 5
@@ -8630,9 +8634,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6decdc411055d54bb3872a88f029a7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 1
 --- !u!136 &2073691676
 CapsuleCollider:
   m_ObjectHideFlags: 0

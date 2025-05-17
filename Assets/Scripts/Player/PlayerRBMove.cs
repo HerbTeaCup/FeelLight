@@ -10,8 +10,6 @@ public class PlayerRBMove : MonoBehaviour
     PlayerStats _stats;
     CameraRotator _camController;
 
-    [SerializeField] LayerMask groundLayer;
-
     Rigidbody _rb;
 
     //Fields
@@ -34,7 +32,6 @@ public class PlayerRBMove : MonoBehaviour
     public bool isRunning { get; private set; } = false;
 
     //회전관련 공개 Fields
-    public Vector3 moveDir { get; private set; } //경사 고려한 실제 움직임 방향
 
 
     void Start()
@@ -92,27 +89,24 @@ public class PlayerRBMove : MonoBehaviour
         if (_stats.movementType != PlayerStats.MovementType.Generic)
             return;
 
-        RaycastHit hit;
 
-        if (Physics.Raycast(this.transform.position + Vector3.up * 0.2f, Vector3.down, out hit, 0.3f, groundLayer))
-        {
-            _stats.isGrounded = true;
-            Vector3 slopeNormal = hit.normal;
+        if (_stats.isGrounded == true)
+        { 
+            Vector3 slopeNormal = _stats.downHit.normal;
 
-            moveDir = Vector3.ProjectOnPlane(_camController.targetDir, slopeNormal).normalized;
+            _stats.moveDir = Vector3.ProjectOnPlane(_camController.targetDir, slopeNormal).normalized;
 
-            float slopeAngle = Vector3.Angle(hit.normal, Vector3.up);
+            float slopeAngle = Vector3.Angle(_stats.downHit.normal, Vector3.up);
 
             if (slopeAngle > 60)
             {
                 // 이동을 막거나 미끄러지게 만들기
-                moveDir = Vector3.zero;
+                _stats.moveDir = Vector3.zero;
             }
         }
         else
         {
-            moveDir = _camController.targetDir; //딱히 어딘가에 서있는 상태가 아니라면 그냥 이동
-            _stats.isGrounded = false;
+            _stats.moveDir = _camController.targetDir; //딱히 어딘가에 서있는 상태가 아니라면 그냥 이동
         }
 
         //점프위해 양의 벡터일 경우를 생각
@@ -126,7 +120,7 @@ public class PlayerRBMove : MonoBehaviour
         }
 
         //어차피 speed 에서 0 ~ targetSpeed 까지 lerp됨
-        _rb.velocity = moveDir * _stats.speed + _vertical;
+        _rb.velocity = _stats.moveDir * _stats.speed + _vertical;
 
 #if UNITY_EDITOR
         Debug.DrawLine(this.transform.position, this.transform.position + (Vector3.down * 0.1f), _stats.isGrounded ? Color.green : Color.red);
@@ -153,7 +147,7 @@ public class PlayerRBMove : MonoBehaviour
             _vertical.y = Mathf.Sqrt(_jumpLong * -2f * Physics.gravity.y);
             _jumpTriggered = true;
             _jumpPress = false;
-            _stats.isGrounded = false; // 점프 직후 땅에서 떼었다고 간주
+            _stats.SetGrounded(false); // 점프 직후 땅에서 떼었다고 간주
             Debug.Log("Big Jump");
         }
 
@@ -163,7 +157,7 @@ public class PlayerRBMove : MonoBehaviour
             _vertical.y = Mathf.Sqrt(_jumpShort * -2f * Physics.gravity.y);
             _jumpTriggered = true;
             _jumpPress = false;
-            _stats.isGrounded = false;
+            _stats.SetGrounded(false);
             Debug.Log("Short Jump!");
         }
 
