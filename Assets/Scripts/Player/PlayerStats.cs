@@ -13,6 +13,7 @@ public class PlayerStats : MonoBehaviour
     }
 
     [SerializeField] LayerMask groundLayer = 1 << 3;
+    CapsuleCollider _collider;
 
     public MovementType movementType = MovementType.Generic;
 
@@ -27,16 +28,18 @@ public class PlayerStats : MonoBehaviour
     /// </summary>
     public RaycastHit downHit { get; private set; }
 
+    private void Start()
+    {
+        _collider = GetComponent<CapsuleCollider>();
+    }
+
     private void Update()
     {
-
         //공중인데 스페이스바 한번 더 눌렀으면 공중 전환
         if (isGrounded == false && InputHandler.Instance.GetTrigger(KeyCode.Space))
         {
             movementType = MovementType.SlowFall;
         }
-
-        Debug.Log(movementType);
 
         GroundCheckAndHitUpdate();
     }
@@ -45,7 +48,7 @@ public class PlayerStats : MonoBehaviour
     {
         RaycastHit temp;
 
-        if (Physics.Raycast(this.transform.position + Vector3.up * 0.2f, Vector3.down, out temp, 0.3f, groundLayer))
+        if (Physics.SphereCast(this.transform.position + Vector3.up * 0.4f, _collider.radius, Vector3.down, out temp, 0.3f, groundLayer))
         {
             isGrounded = true;
         }

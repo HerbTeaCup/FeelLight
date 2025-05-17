@@ -5,8 +5,7 @@ using UnityEngine;
 
 public class PlayerSlowFallMove : EffectableBaseMovement
 {
-    Vector2 _inputBuffer;
-    bool _easingFlag = false;
+    float _airSpeed = 3.5f;
 
     protected override void Start()
     {
@@ -18,16 +17,25 @@ public class PlayerSlowFallMove : EffectableBaseMovement
 
     public override void SpeedUpdate()
     {
+        float targetSpeed = (InputParameter.Instance.MoveInput == Vector2.zero) ? 0f : _airSpeed;
 
+        _stats.speed = targetSpeed;
     }
 
     public override void HorizonMove()
     {
-
+        _stats.moveDir = _camController.targetDir;
     }
 
     public override void VerticalMove()
     {
+        //날다가 착지하면 다시 기본 움직임으로 변환
+        if (_stats.isGrounded)
+        {
+            _stats.movementType = PlayerStats.MovementType.Generic;
+            return;
+        }
 
+        _stats.vertical.y = -1.5f;
     }
 }
