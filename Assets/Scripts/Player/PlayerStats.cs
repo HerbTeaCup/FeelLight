@@ -50,13 +50,7 @@ public class PlayerStats : MonoBehaviour
     {
         RaycastHit temp;
 
-        float radius = _collider.radius;
-        float fallSpeed = Mathf.Abs(_rb.velocity.y);
-        float dynamicDistance = fallSpeed * Time.fixedDeltaTime + 0.05f;
-
-        Vector3 origin = transform.position + Vector3.up * (radius + 0.05f);
-
-        if (Physics.SphereCast(origin, radius, Vector3.down, out temp, dynamicDistance, groundLayer, QueryTriggerInteraction.Ignore))
+        if (Physics.Raycast(this.transform.position + Vector3.up * 0.2f, Vector3.down, out temp, 0.3f, groundLayer))
         {
             isGrounded = true;
         }
