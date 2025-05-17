@@ -4,62 +4,35 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Experimental.GlobalIllumination;
 
-public class PlayerRBMove : MonoBehaviour
+public class PlayerRBMove : BaseMovement
 {
-    MovementStateManager _stateManager;
-    PlayerStats _stats;
-    CameraRotator _camController;
-
-    Rigidbody _rb;
-
     //Fields
     bool _jumpPress = false;
     bool _jumpTriggered = false;
+    bool isRunning = false;
 
     float _speedOffset = 0.1f;
     float _walkSpeed = 4f;
     float _runSpeed = 8f;
     float _pressDeltaTime = 0f;
     float _pressflagtime = 0.15f;
-    float _jumpLong = 1f;
+    float _jumpLong = 1.5f;
     float _jumpShort = 0.5f;
 
     int speedLerpRatio = 10;
 
-    Vector3 _vertical = Vector3.zero; //점프, 낙하, 추락
-
-    //이동관련 공개 Fields
-    public bool isRunning { get; private set; } = false;
-
-    //회전관련 공개 Fields
-
-
-    void Start()
+    protected override void Start()
     {
-        _stats = GetComponent<PlayerStats>();
-        _camController = GetComponent<CameraRotator>();
-        _stateManager = GetComponent<MovementStateManager>();
-        _rb = GetComponent<Rigidbody>();
+        base.Start();
 
-        _rb.interpolation = RigidbodyInterpolation.Interpolate;
-
-        _stateManager.GenericMove += GenericMove;
-        //_stateManager.GenericMove += Jumping;
-    }
-
-    private void Update()
-    {
-        if (_stats.movementType != PlayerStats.MovementType.Generic)
-            return;
-
-        GenericSpeedUpdate();
-        Jumping();
+        _stateManager.AddToUpdateSwitch(PlayerStats.MovementType.Generic, this);
+        _stateManager.AddToFixedSwitch(PlayerStats.MovementType.Generic, this);
     }
 
     /// <summary>
     /// 평범한 지상움직임을 위한 속도 보간
     /// </summary>
-    void GenericSpeedUpdate()
+    public override void SpeedUpdate()
     {
         if (_stats.movementType != PlayerStats.MovementType.Generic)
             return;
@@ -84,7 +57,7 @@ public class PlayerRBMove : MonoBehaviour
             _stats.speed = targetSpeed;
         }
     }
-    private void GenericMove()
+    public override void HorizonMove()
     {
         if (_stats.movementType != PlayerStats.MovementType.Generic)
             return;
@@ -108,27 +81,20 @@ public class PlayerRBMove : MonoBehaviour
         {
             _stats.moveDir = _camController.targetDir; //딱히 어딘가에 서있는 상태가 아니라면 그냥 이동
         }
+    }
 
+    public override void VerticalMove()
+    {
         //점프위해 양의 벡터일 경우를 생각
-        if (_stats.isGrounded && _vertical.y <= 0f)
+        if (_stats.isGrounded && _stats.vertical.y <= 0f)
         {
-            _vertical.y = 0f;
+            _stats.vertical.y = 0f;
         }
         else
         {
-            _vertical.y += Physics.gravity.y * Time.fixedDeltaTime;
+            _stats.vertical.y += Physics.gravity.y * Time.fixedDeltaTime;
         }
 
-        //어차피 speed 에서 0 ~ targetSpeed 까지 lerp됨
-        _rb.velocity = _stats.moveDir * _stats.speed + _vertical;
-
-#if UNITY_EDITOR
-        Debug.DrawLine(this.transform.position, this.transform.position + (Vector3.down * 0.1f), _stats.isGrounded ? Color.green : Color.red);
-#endif
-    }
-
-    void Jumping()
-    {
         // 키 처음 누를 때
         if (InputHandler.Instance.GetTrigger(KeyCode.Space) && !_jumpPress && _stats.isGrounded)
         {
@@ -144,21 +110,27 @@ public class PlayerRBMove : MonoBehaviour
         // 긴 점프 조건: 길게 누른 채 시간이 임계치 초과하고, 아직 점프 안 했고, 땅에 있을 때
         if (_jumpPress && !_jumpTriggered && _pressDeltaTime > _pressflagtime && _stats.isGrounded)
         {
-            _vertical.y = Mathf.Sqrt(_jumpLong * -2f * Physics.gravity.y);
+            _stats.vertical.y = Mathf.Sqrt(_jumpLong * -2f * Physics.gravity.y);
             _jumpTriggered = true;
             _jumpPress = false;
             _stats.SetGrounded(false); // 점프 직후 땅에서 떼었다고 간주
+
+            #if UNITY_EDITOR
             Debug.Log("Big Jump");
+            #endif
         }
 
         // 짧은 점프 조건: 키 뗐을 때 누른 시간이 짧고, 아직 점프 안 했고, 땅에 있을 때
         if (InputHandler.Instance.GetKeyUp(KeyCode.Space) && _jumpPress && !_jumpTriggered && _stats.isGrounded)
         {
-            _vertical.y = Mathf.Sqrt(_jumpShort * -2f * Physics.gravity.y);
+            _stats.vertical.y = Mathf.Sqrt(_jumpShort * -2f * Physics.gravity.y);
             _jumpTriggered = true;
             _jumpPress = false;
             _stats.SetGrounded(false);
-            Debug.Log("Short Jump!");
+
+            #if UNITY_EDITOR
+            Debug.Log("Short Jump");
+            #endif
         }
 
         // 착지 시 초기화

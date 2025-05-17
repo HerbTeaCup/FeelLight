@@ -14,12 +14,13 @@ public class PlayerStats : MonoBehaviour
 
     [SerializeField] LayerMask groundLayer = 1 << 3;
 
-    public MovementType movementType { get; private set; } = MovementType.Generic; //초기엔 일반 움직임
+    public MovementType movementType = MovementType.Generic;
 
     public bool isGrounded { get; private set; } = false;
     public float speed { get; set; }
 
     public Vector3 moveDir { get; set; } //경사 고려한 실제 움직임 방향
+    public Vector3 vertical = Vector3.zero; //수직 벡터
 
     /// <summary>
     /// 바닥으로 쏘는 Hit 바닥 검출
