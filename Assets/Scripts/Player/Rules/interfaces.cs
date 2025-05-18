@@ -8,6 +8,7 @@ public interface IMovementBase
     public void SpeedUpdate();
     public void HorizonMove();
     public void VerticalMove();
+    public void GroundCheck();
 
     /// <summary>
     /// 실제 움직임 (velocity 조절)

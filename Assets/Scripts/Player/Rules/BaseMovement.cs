@@ -23,6 +23,7 @@ public abstract class BaseMovement : MonoBehaviour, IMovementBase
     public abstract void SpeedUpdate();
     public abstract void HorizonMove();
     public abstract void VerticalMove();
+    public abstract void GroundCheck();
 
     public virtual void Move()
     {

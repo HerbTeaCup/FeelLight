@@ -29,6 +29,7 @@ public class MovementStateManager : MonoBehaviour
         Tick[_stats.movementType].SpeedUpdate();
         Tick[_stats.movementType].HorizonMove();
         Tick[_stats.movementType].VerticalMove();
+        Tick[_stats.movementType].SpeedUpdate();
     }
     private void FixedUpdate()
     {

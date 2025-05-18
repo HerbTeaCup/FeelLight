@@ -16,7 +16,7 @@ public class PlayerRBMove : BaseMovement
     float _runSpeed = 8f;
     float _pressDeltaTime = 0f;
     float _pressflagtime = 0.15f;
-    float _jumpLong = 3f;
+    float _jumpLong = 2.5f;
     float _jumpShort = 1.5f;
 
     int speedLerpRatio = 10;
@@ -139,5 +139,33 @@ public class PlayerRBMove : BaseMovement
             _jumpTriggered = false;
             _pressDeltaTime = 0f;
         }
+    }
+
+    public override void GroundCheck()
+    {
+        Vector3 center = transform.position;
+        float speed = Mathf.Abs(_rb.velocity.y);
+        float rayLength = Mathf.Clamp(speed * Time.fixedDeltaTime + 0.1f, 0.2f, 2f);
+
+        Vector3[] offsets = {
+        Vector3.zero,
+        new Vector3( 0.25f, 0,  0),
+        new Vector3(-0.25f, 0,  0),
+        new Vector3( 0,     0,  0.25f),
+        new Vector3( 0,     0, -0.25f)
+    };
+
+        foreach (var offset in offsets)
+        {
+            Vector3 origin = center + Vector3.up * 0.2f + transform.TransformDirection(offset);
+            if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, rayLength, _stats.groundLayer))
+            {
+                _stats.downHit = hit;
+                _stats.isGrounded = true;
+                return;
+            }
+        }
+
+        _stats.isGrounded = false;
     }
 }
