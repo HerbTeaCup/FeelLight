@@ -56,11 +56,14 @@ public abstract class EffectableBaseMovement : BaseMovement, IEnvironmentalAffec
         _rb.velocity = _stats.moveDir * _stats.speed + _stats.vertical + _extendForce;
     }
 
-    public void AddMove(Vector3 HorizonAddValue, Vector3 VerticalAddValue)
+    public void AddMove(Vector3 HorizonAddValue, Vector3 VerticalAddValue, float strength)
     {
-        _extendForce += HorizonAddValue + VerticalAddValue;
+        _extendForce = (HorizonAddValue + VerticalAddValue) * strength;
     }
 
+    /// <summary>
+    /// AddMove()를 했다면, 반드시 RemoveMove()를 해주어야함.
+    /// </summary>
     public void RemoveMove()
     {
         _extendForce = Vector3.Lerp(Vector3.zero, _extendForce, 0.5f);
