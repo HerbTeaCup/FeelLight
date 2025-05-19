@@ -1695,7 +1695,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 275576824}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 357f3a98cfab8a54d85fdb64ca5cd7b3, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -2028,8 +2028,6 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
-  movementType: 0
-  vertical: {x: 0, y: 0, z: 0}
 --- !u!143 &364780391
 CharacterController:
   m_ObjectHideFlags: 0
@@ -8558,8 +8556,6 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 9
-  movementType: 0
-  vertical: {x: 0, y: 0, z: 0}
 --- !u!95 &2073691671
 Animator:
   serializedVersion: 5
@@ -8639,6 +8635,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6decdc411055d54bb3872a88f029a7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  offset: {x: 0, y: 0, z: 0}
 --- !u!136 &2073691676
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -8661,7 +8658,7 @@ CapsuleCollider:
   m_Radius: 0.2
   m_Height: 1.1
   m_Direction: 1
-  m_Center: {x: 0, y: 0.55, z: -0.07}
+  m_Center: {x: 0, y: 0.55, z: 0}
 --- !u!114 &2073691677
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8699,6 +8696,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae69d5baeb5544046bb0a0399b01fc7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  offset: {x: 0, y: 0, z: 0}
 --- !u!1 &2113864898
 GameObject:
   m_ObjectHideFlags: 0
@@ -16081,6 +16079,6 @@ SceneRoots:
   - {fileID: 1395276260}
   - {fileID: 3851483538581169068}
   - {fileID: 115884397}
-  - {fileID: 2073691672}
   - {fileID: 1612101523}
   - {fileID: 723906485}
+  - {fileID: 2073691672}

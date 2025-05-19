@@ -9,7 +9,7 @@ public class PlayerRBMove : BaseMovement
     //Fields
     bool _jumpPress = false;
     bool _jumpTriggered = false;
-    bool isRunning = false;
+    bool _isRunning = false;
 
     float _speedOffset = 0.1f;
     float _walkSpeed = 4f;
@@ -37,9 +37,9 @@ public class PlayerRBMove : BaseMovement
         if (_stats.movementType != PlayerStats.MovementType.Generic)
             return;
 
-        isRunning = InputHandler.Instance.GetHold(KeyCode.LeftShift);
+        _isRunning = InputHandler.Instance.GetHold(KeyCode.LeftShift);
 
-        float targetSpeed = isRunning ? _runSpeed : _walkSpeed;
+        float targetSpeed = _isRunning ? _runSpeed : _walkSpeed;
 
         if (InputParameter.Instance.MoveInput == Vector2.zero)
             targetSpeed = 0f;
