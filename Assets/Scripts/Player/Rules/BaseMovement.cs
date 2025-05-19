@@ -9,6 +9,9 @@ public abstract class BaseMovement : MonoBehaviour, IMovementBase
     protected Rigidbody _rb;
     protected PlayerStats _stats;
     protected CameraRotator _camController;
+    protected CapsuleCollider _capsule;
+
+    protected RaycastHit _downHit;
 
     protected virtual void Start()
     {
@@ -16,6 +19,7 @@ public abstract class BaseMovement : MonoBehaviour, IMovementBase
         _camController = GetComponent<CameraRotator>();
         _stateManager = GetComponent<MovementStateManager>();
         _rb = GetComponent<Rigidbody>();
+        _capsule = GetComponent<CapsuleCollider>();
 
         _rb.interpolation = RigidbodyInterpolation.Interpolate;
     }
@@ -23,10 +27,21 @@ public abstract class BaseMovement : MonoBehaviour, IMovementBase
     public abstract void SpeedUpdate();
     public abstract void HorizonMove();
     public abstract void VerticalMove();
-    public abstract void GroundCheck();
+    public virtual void GroundCheck() //SlowFall, GenericMove에서 override없이 그대로 사용중
+    {
+        Vector3 center = transform.position + Vector3.up * _capsule.radius / 2;
+        _stats.SetGrounded(Physics.CheckSphere(center, _capsule.radius / 1.9f, _stats.groundLayer));
+
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, 1f, _stats.groundLayer))
+        {
+            _downHit = hit;
+        }
+    }
 
     public virtual void Move()
     {
+        //어차피 speed 에서 0 ~ targetSpeed 까지 lerp됨
         _rb.velocity = _stats.moveDir * _stats.speed + _stats.vertical;
     }
 }
@@ -37,13 +52,17 @@ public abstract class EffectableBaseMovement : BaseMovement, IEnvironmentalAffec
 
     public override void Move()
     {
-        Debug.Log($"EffectableBaseMovement Move!");
-        //어차피 speed 에서 0 ~ targetSpeed 까지 lerp됨
+        //extendForce가 Vector3.zero 면, 알아서 영향 없음
         _rb.velocity = _stats.moveDir * _stats.speed + _stats.vertical + _extendForce;
     }
 
     public void AddMove(Vector3 HorizonAddValue, Vector3 VerticalAddValue)
     {
         _extendForce += HorizonAddValue + VerticalAddValue;
+    }
+
+    public void RemoveMove()
+    {
+        _extendForce = Vector3.Lerp(Vector3.zero, _extendForce, 0.5f);
     }
 }

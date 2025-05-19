@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class PlayerStats : MonoBehaviour
@@ -15,19 +16,15 @@ public class PlayerStats : MonoBehaviour
     public LayerMask groundLayer = 1 << 3;
     Rigidbody _rb;
 
-    public MovementType movementType = MovementType.Generic;
+    //Set Open 필드
+    public float speed { get; set; } //단순한 Speed 값.
 
-    /// <summary>
-    /// 바닥으로 쏘는 Hit 바닥 검출
-    /// </summary>
-    public RaycastHit downHit { get; set; } //각 이동방식마다 바닥 검출 방법이 다르거나 해야하므로
-    public bool isGrounded { get; set; } = false; //각 이동방식마다 바닥 검출 방법을 다르게 해야하므로 Open
-    public float speed { get; set; }
+    //무결성 필요한 필드들
+    public bool isGrounded { get; private set; } = false; //애니메이션, 점프 가능 등 중요한 역할이므로 무결성이 중요함
+    public Vector3 moveDir { get; private set; } //오류나 실수 시 플레이어의 의도치 않은 조작이 발생하게 됨
+    public Vector3 vertical { get; private set; } = Vector3.zero; //마찬가지
+    public MovementType movementType { get; private set; } = MovementType.Generic; //행동변화에 직결되는 필드이므로 무결성
 
-    public Vector3 moveDir { get; set; } //경사 고려한 실제 움직임 방향
-    public Vector3 vertical = Vector3.zero; //수직 벡터
-
-    
 
     private void Start()
     {
@@ -39,45 +36,62 @@ public class PlayerStats : MonoBehaviour
 
     private void Update()
     {
+        Debug.Log(isGrounded);
         //공중인데 스페이스바 한번 더 눌렀으면 공중 전환
         if (isGrounded == false && InputHandler.Instance.GetTrigger(KeyCode.Space))
         {
             movementType = MovementType.SlowFall;
         }
-
-        GroundCheckAndHitUpdate();
     }
 
-    void GroundCheckAndHitUpdate()
-    {
-        Vector3 center = transform.position;
-        float speed = Mathf.Abs(_rb.velocity.y);
-        float rayLength = Mathf.Clamp(speed * Time.fixedDeltaTime + 0.1f, 0.2f, 2f);
-
-        Vector3[] offsets = {
-        Vector3.zero,
-        new Vector3( 0.25f, 0,  0),
-        new Vector3(-0.25f, 0,  0),
-        new Vector3( 0,     0,  0.25f),
-        new Vector3( 0,     0, -0.25f)
-    };
-
-        foreach (var offset in offsets)
-        {
-            Vector3 origin = center + Vector3.up * 0.2f + transform.TransformDirection(offset);
-            if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, rayLength, groundLayer))
-            {
-                downHit = hit;
-                isGrounded = true;
-                return;
-            }
-        }
-
-        isGrounded = false;
-    }
-
+    #region Setter Methods
     public void SetGrounded(bool value)
     {
         isGrounded = value;
     }
+
+    public void SetMoveDir(Vector3 dir)
+    {
+        dir = dir.normalized;
+        moveDir = dir;
+    }
+
+    public void SetVertical(Vector3 vertical, [CallerMemberName] string caller = "")
+    {
+        if (vertical.x != 0 || vertical.z != 0)
+        {
+            vertical.x = 0;
+            vertical.z = 0;
+#if UNITY_EDITOR
+            Debug.Log($"{caller}의 vertical 벡터를 확인해봐야할 것 같아요..!\nStack : {Environment.StackTrace}");
+#endif
+        }
+
+        this.vertical = vertical;
+    }
+    public void SetVertical(float value, [CallerMemberName] string caller = "")
+    {
+        if (Mathf.Abs(value) > 100f)
+        {
+#if UNITY_EDITOR
+            Debug.LogWarning($"{caller}에서 +-100f 가 넘어가는 값이 vertical에 한번에 할당 됐어요..!\nStack : {Environment.StackTrace}");
+#endif
+            value = Mathf.Clamp(value, -50f, 50f);
+        }
+
+        //무결성 로직
+        this.vertical = new Vector3(0, value, 0);
+    }
+    public void AddVertical(float value) //딱히 Caller을 쓸 만하진 않을 것 같아서 여기만 예외적으로 안함
+    {
+        this.vertical = new Vector3(0, this.vertical.y + value, 0);
+    }
+    public void SwitchMovmentType(MovementType type, [CallerMemberName] string caller = "")
+    {
+#if UNITY_EDITOR
+        Debug.Log($"{caller}에서 타입 변환..!");
+#endif
+        this.movementType = type;
+    }
+    #endregion
 }

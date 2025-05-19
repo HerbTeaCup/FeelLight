@@ -65,21 +65,21 @@ public class PlayerRBMove : BaseMovement
 
         if (_stats.isGrounded == true)
         { 
-            Vector3 slopeNormal = _stats.downHit.normal;
+            Vector3 slopeNormal = _downHit.normal;
 
-            _stats.moveDir = Vector3.ProjectOnPlane(_camController.targetDir, slopeNormal).normalized;
+            _stats.SetMoveDir(Vector3.ProjectOnPlane(_camController.targetDir, slopeNormal).normalized);
 
-            float slopeAngle = Vector3.Angle(_stats.downHit.normal, Vector3.up);
+            float slopeAngle = Vector3.Angle(_downHit.normal, Vector3.up);
 
             if (slopeAngle > 60)
             {
                 // 이동을 막거나 미끄러지게 만들기
-                _stats.moveDir = Vector3.zero;
+                _stats.SetMoveDir(Vector3.zero);
             }
         }
         else
         {
-            _stats.moveDir = _camController.targetDir; //딱히 어딘가에 서있는 상태가 아니라면 그냥 이동
+            _stats.SetMoveDir(_camController.targetDir); //딱히 어딘가에 서있는 상태가 아니라면 그냥 이동
         }
     }
 
@@ -88,11 +88,11 @@ public class PlayerRBMove : BaseMovement
         //점프위해 양의 벡터일 경우를 생각
         if (_stats.isGrounded && _stats.vertical.y <= 0f)
         {
-            _stats.vertical.y = 0f;
+            _stats.SetVertical(0f);
         }
         else
         {
-            _stats.vertical.y += Physics.gravity.y * Time.fixedDeltaTime;
+            _stats.AddVertical(Physics.gravity.y * Time.fixedDeltaTime);
         }
 
         // 키 처음 누를 때
@@ -110,7 +110,7 @@ public class PlayerRBMove : BaseMovement
         // 긴 점프 조건: 길게 누른 채 시간이 임계치 초과하고, 아직 점프 안 했고, 땅에 있을 때
         if (_jumpPress && !_jumpTriggered && _pressDeltaTime > _pressflagtime && _stats.isGrounded)
         {
-            _stats.vertical.y = Mathf.Sqrt(_jumpLong * -2f * Physics.gravity.y);
+            _stats.SetVertical(Mathf.Sqrt(_jumpLong * -2f * Physics.gravity.y));
             _jumpTriggered = true;
             _jumpPress = false;
             _stats.SetGrounded(false); // 점프 직후 땅에서 떼었다고 간주
@@ -123,7 +123,7 @@ public class PlayerRBMove : BaseMovement
         // 짧은 점프 조건: 키 뗐을 때 누른 시간이 짧고, 아직 점프 안 했고, 땅에 있을 때
         if (InputHandler.Instance.GetKeyUp(KeyCode.Space) && _jumpPress && !_jumpTriggered && _stats.isGrounded)
         {
-            _stats.vertical.y = Mathf.Sqrt(_jumpShort * -2f * Physics.gravity.y);
+            _stats.SetVertical(Mathf.Sqrt(_jumpShort * -2f * Physics.gravity.y));
             _jumpTriggered = true;
             _jumpPress = false;
             _stats.SetGrounded(false);
@@ -139,33 +139,5 @@ public class PlayerRBMove : BaseMovement
             _jumpTriggered = false;
             _pressDeltaTime = 0f;
         }
-    }
-
-    public override void GroundCheck()
-    {
-        Vector3 center = transform.position;
-        float speed = Mathf.Abs(_rb.velocity.y);
-        float rayLength = Mathf.Clamp(speed * Time.fixedDeltaTime + 0.1f, 0.2f, 2f);
-
-        Vector3[] offsets = {
-        Vector3.zero,
-        new Vector3( 0.25f, 0,  0),
-        new Vector3(-0.25f, 0,  0),
-        new Vector3( 0,     0,  0.25f),
-        new Vector3( 0,     0, -0.25f)
-    };
-
-        foreach (var offset in offsets)
-        {
-            Vector3 origin = center + Vector3.up * 0.2f + transform.TransformDirection(offset);
-            if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, rayLength, _stats.groundLayer))
-            {
-                _stats.downHit = hit;
-                _stats.isGrounded = true;
-                return;
-            }
-        }
-
-        _stats.isGrounded = false;
     }
 }
