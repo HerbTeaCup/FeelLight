@@ -6,18 +6,22 @@ using UnityEngine;
 
 public class PlayerStats : MonoBehaviour
 {
+    //동적배열로 바꿔서 없는 것도 동적으로 추가하게 할 순 있지만,
+    //그러면 의도치 않은 것도 추가할 수 있는 여지가 생김
+    //따라서 enum으로 선언해서 오류를 확실히 발생시키게
     public enum MovementType
     {
         Generic, //일반적인 움직임(평지)
         SlowFall, //낙하산 같은 움직임 like 원신
-        Flight, //비행 like 마크 겉날개
+        Gliding, //활공 like 슈퍼마리오64 날개
+        Flight, //제약 없는 순수 비행
     }
 
     public LayerMask groundLayer = 1 << 3;
     Rigidbody _rb;
 
     //Set Open 필드
-    public float speed { get; set; } //단순한 Speed 값.
+    public float speed { get; set; } //단순한 Speed 필드이므로 무결성 필요 없음
 
     //무결성 필요한 필드들
     public bool isGrounded { get; private set; } = false; //애니메이션, 점프 가능 등 중요한 역할이므로 무결성이 중요함
@@ -36,7 +40,6 @@ public class PlayerStats : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log(isGrounded);
         //공중인데 스페이스바 한번 더 눌렀으면 공중 전환
         if (isGrounded == false && InputHandler.Instance.GetTrigger(KeyCode.Space))
         {

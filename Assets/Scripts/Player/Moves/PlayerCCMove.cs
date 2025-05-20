@@ -18,8 +18,8 @@ public class PlayerCCMove : MonoBehaviour
     float _targetRotation = 0f;
     float walkSpeed = 4f;
     float runSpeed = 8f;
-    float minFlightSpeed = 30f;
-    float maxFlightSpeed = 140f;
+    //float minFlightSpeed = 30f;
+    //float maxFlightSpeed = 140f;
 
     int speedLerpRatio { get { return flightMode ? 30 : 10; } }
     int rotateLerpRatio = 10;

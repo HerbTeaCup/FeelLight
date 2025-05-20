@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class CameraRotator : MonoBehaviour
@@ -11,7 +12,8 @@ public class CameraRotator : MonoBehaviour
     float _initCameraRoatationY = 0f; //초기 카메라 회전값
     float _targetRotation = 0f;
 
-    int rotateLerpRatio = 10;
+    int _addLerpRatio = 10; //targetDir에 더해줄 때의 보간 비율, 값은 확인 필요
+    int _rotateLerpRatio = 10;
 
     Vector3 _dir = Vector3.zero; //Atan2 위한 값
     public Vector3? overrideLookTarget { get; set; }
@@ -28,6 +30,9 @@ public class CameraRotator : MonoBehaviour
         StartCoroutine(LateFixedUpdate());
     }
 
+    /// <summary>
+    /// Rigidbody의 velocity를 설정하는 FixedUpdate문과 순서를 항상 뒤로 두기 위해
+    /// </summary>
     IEnumerator LateFixedUpdate()
     {
         while (true)
@@ -68,7 +73,7 @@ public class CameraRotator : MonoBehaviour
         overrideLookTarget = null;
 
         this.transform.rotation =
-            Quaternion.Slerp(this.transform.rotation, Quaternion.Euler(0, _targetRotation, 0), rotateLerpRatio * Time.deltaTime);
+            Quaternion.Slerp(this.transform.rotation, Quaternion.Euler(0, _targetRotation, 0), _rotateLerpRatio * Time.deltaTime);
 
         targetDir = (Quaternion.Euler(0, _targetRotation, 0) * Vector3.forward).normalized;
     }
@@ -81,5 +86,18 @@ public class CameraRotator : MonoBehaviour
         float yaw = _initCameraRoatationY + InputParameter.Instance.MouseLook.x;
 
         CamArm.transform.rotation = Quaternion.Euler(pitch, yaw, 0);
+    }
+
+    /// <summary>
+    /// 방향을 서서히 바꿔줄 때 사용
+    /// </summary>
+    /// <param name="addValue">작용할 벡터</param>
+    public void TargetDirAdd(Vector3 addValue, [CallerMemberName] string caller = "")
+    {
+#if UNITY_EDITOR
+        Debug.Log($"targetDir 값이 {caller}에 의해 방향이 바뀌고 있어요..!");
+#endif
+        targetDir = Vector3.Lerp(targetDir, targetDir + addValue, Time.deltaTime * _addLerpRatio);
+        targetDir = targetDir.normalized; //targetDir는 항상 정규화된 벡터여야함
     }
 }

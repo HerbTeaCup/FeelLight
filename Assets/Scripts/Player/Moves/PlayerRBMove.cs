@@ -16,7 +16,7 @@ public class PlayerRBMove : BaseMovement
     float _runSpeed = 8f;
     float _pressDeltaTime = 0f;
     float _pressflagtime = 0.15f;
-    float _jumpLong = 2.5f;
+    float _jumpLong = 4.5f;
     float _jumpShort = 1.5f;
 
     int speedLerpRatio = 10;
