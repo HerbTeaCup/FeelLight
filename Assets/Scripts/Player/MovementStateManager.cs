@@ -4,12 +4,17 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
+/// <summary>
+/// 각 이동의 스크립트들의 Update, FixedUpdate를 조절하는 클래스
+/// </summary>
 public class MovementStateManager : MonoBehaviour
 {
     PlayerStats _stats;
 
     Dictionary<PlayerStats.MovementType, IMovementBase> Tick = new();
     Dictionary<PlayerStats.MovementType, IMovementBase> FixedTick = new();
+
+    IMovementBase _currentBase;
 
     private void OnEnable()
     {
@@ -25,12 +30,17 @@ public class MovementStateManager : MonoBehaviour
             return;
         }
 #endif
+        _currentBase = Tick[_stats.movementType];
 
-        Tick[_stats.movementType].SpeedUpdate();
-        Tick[_stats.movementType].HorizonMove();
-        Tick[_stats.movementType].VerticalMove();
-        Tick[_stats.movementType].SpeedUpdate();
-        Tick[_stats.movementType].GroundCheck();
+        _currentBase.SpeedUpdate();
+        _currentBase.HorizonMove();
+        _currentBase.VerticalMove();
+        _currentBase.SpeedUpdate();
+        _currentBase.GroundCheck();
+
+        //각 움직임마다 상태 변화가 있을 수도, 없을 수도 있으므로(ISP)
+        if (_currentBase is IStateChangeable stateChanger)
+            stateChanger.SwitchMovementType();
     }
     private void FixedUpdate()
     {

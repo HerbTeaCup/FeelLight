@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Experimental.GlobalIllumination;
 
-public class PlayerRBMove : BaseMovement
+public class PlayerRBMove : BaseMovement, IStateChangeable
 {
     //Fields
     bool _jumpPress = false;
@@ -138,6 +138,14 @@ public class PlayerRBMove : BaseMovement
         {
             _jumpTriggered = false;
             _pressDeltaTime = 0f;
+        }
+    }
+
+    public void SwitchMovementType()
+    {
+        if (_stats.isGrounded == false && InputHandler.Instance.GetTrigger(KeyCode.Space))
+        {
+            _stats.SwitchMovmentType(PlayerStats.MovementType.SlowFall);
         }
     }
 }

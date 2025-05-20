@@ -28,3 +28,8 @@ public interface IEnvironmentalAffectableMovement : IMovementBase
     /// </summary>
     public void RemoveMove();
 }
+
+public interface IStateChangeable
+{
+    public void SwitchMovementType();
+}

@@ -29,13 +29,6 @@ public class PlayerSlowFallMove : EffectableBaseMovement
 
     public override void VerticalMove()
     {
-        //날다가 착지하면 다시 기본 움직임으로 변환
-        if (_stats.isGrounded)
-        {
-            _stats.SwitchMovmentType(PlayerStats.MovementType.Generic);
-            return;
-        }
-
         _stats.SetVertical(-1.5f);
     }
 }

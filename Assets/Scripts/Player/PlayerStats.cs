@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
+//이 클래스를 "정보 저장용"으로 사용하고 있기 때문에, 해당 목적 외에 어떠한 로직도 들어가면 안됨.
 public class PlayerStats : MonoBehaviour
 {
     //동적배열로 바꿔서 없는 것도 동적으로 추가하게 할 순 있지만,
@@ -40,10 +41,16 @@ public class PlayerStats : MonoBehaviour
 
     private void Update()
     {
-        //공중인데 스페이스바 한번 더 눌렀으면 공중 전환
-        if (isGrounded == false && InputHandler.Instance.GetTrigger(KeyCode.Space))
+        Landing();
+    }
+
+    void Landing()
+    {
+        //어떠한 방식으로 날았던 착지하면 무조건 일반적 움직임으로
+        if (isGrounded)
         {
-            movementType = MovementType.SlowFall;
+            SwitchMovmentType(PlayerStats.MovementType.Generic);
+            return;
         }
     }
 
