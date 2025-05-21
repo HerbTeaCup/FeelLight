@@ -3,25 +3,26 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerGlidingMove : EffectableBaseMovement
+public class PlayerGlidingMove : EffectableBaseMovement, IStateChangeable
 {
-    float _horizonMaxFlightSpeed = 45f; //수평 최대 이동속도
-    float _horizonMinFlightSpeed = 15f; //수평 최소 이동속도
-    float _verticalMaxFlightSpeed = 20f; //수직 최대 이동속도
-    float _verticalMinFlightSpeed = 5f; //수직 최소 이동속도
-
+    float _speedRatio = 2f; //아주 느리게 lerp되어서 속도가 어느정도 유지되게
     /*
      * 필요 정의
      * 
      * 0. 기본적으로 "앞으로 가되, 천천히 추락한다
-     * 1. W키를 누른다. -> 위로 상승 & 속도 감소
-     * 2. S키를 누른다. -> 아래로 하강 & 속도 증가
-     * 3. 방향조절은 마우스일땐 원래대로, 키보드는 방향 변화로
+     * 1. S키를 누른다. -> 위로 상승 & 속도 감소
+     * 2. W키를 누른다. -> 아래로 하강 & 속도 증가
+     * 3. 방향조절은 키보드는 방향 변화로(시점 따라가야함. 즉, 같이 회전해야함)
      * 4. 아무 조작이 없다면 천천히 시점이 내려가고 하강을 시작
      * 5. 별도의 스테미나가 존재하고 사용시 천천히 줄면서 각도 상관없이 빠르게 날아감
      */
 
     public override void HorizonMove()
+    {
+        Vector3 realMove = new Vector3(_camController.targetDir.x, 0, _camController.targetDir.z);
+        _stats.SetMoveDir(realMove);
+    }
+    public override void VerticalMove()
     {
 
     }
@@ -31,15 +32,19 @@ public class PlayerGlidingMove : EffectableBaseMovement
 
     }
 
-    public override void VerticalMove()
+    public void SwitchMovementType()
     {
-
+        if (_stats.isGrounded == false && InputHandler.Instance.GetTrigger(KeyCode.LeftShift))
+        {
+            _stats.SwitchType(PlayerStats.MovementType.Flight);
+        }
     }
+    
 
     protected override void Start()
     {
         base.Start();
-        _stateManager.AddToUpdateSwitch(PlayerStats.MovementType.Flight, this);
-        _stateManager.AddToFixedSwitch(PlayerStats.MovementType.Flight, this);
+        _stateManager.AddToUpdateSwitch(PlayerStats.MovementType.Gliding, this);
+        _stateManager.AddToFixedSwitch(PlayerStats.MovementType.Gliding, this);
     }
 }

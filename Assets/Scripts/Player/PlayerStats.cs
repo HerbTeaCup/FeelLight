@@ -18,6 +18,12 @@ public class PlayerStats : MonoBehaviour
         Flight, //제약 없는 순수 비행
     }
 
+    public enum CameraRoatateType
+    {
+        Simple,
+        NonSimple
+    }
+
     public LayerMask groundLayer = 1 << 3;
     Rigidbody _rb;
 
@@ -28,8 +34,13 @@ public class PlayerStats : MonoBehaviour
     public bool isGrounded { get; private set; } = false; //애니메이션, 점프 가능 등 중요한 역할이므로 무결성이 중요함
     public Vector3 moveDir { get; private set; } //오류나 실수 시 플레이어의 의도치 않은 조작이 발생하게 됨
     public Vector3 vertical { get; private set; } = Vector3.zero; //마찬가지
-    public MovementType movementType { get; private set; } = MovementType.Generic; //행동변화에 직결되는 필드이므로 무결성
+    public MovementType movementType { get; private set; } = MovementType.Generic; //움직임 타입
+    public CameraRoatateType cameraType { get; private set; } = CameraRoatateType.Simple; //movementType 바뀔 때, 같이 바뀜
 
+    //메모
+    //moveDir은 사실 BaseMovement의 필드로 해서 상속하는 것도 방법이긴 하지만,
+    //나중에 플레이어의 moveDir에 따른 상호작용도 추가할 가능성이 있으므로 stats에 놓음.
+    //필요가 없어지거나 하면 나중에 리팩토링 하는걸로
 
     private void Start()
     {
@@ -49,7 +60,7 @@ public class PlayerStats : MonoBehaviour
         //어떠한 방식으로 날았던 착지하면 무조건 일반적 움직임으로
         if (isGrounded)
         {
-            SwitchMovmentType(PlayerStats.MovementType.Generic);
+            SwitchType(MovementType.Generic);
             return;
         }
     }
@@ -96,12 +107,19 @@ public class PlayerStats : MonoBehaviour
     {
         this.vertical = new Vector3(0, this.vertical.y + value, 0);
     }
-    public void SwitchMovmentType(MovementType type, [CallerMemberName] string caller = "")
+
+    public void SwitchType(MovementType type)
     {
-#if UNITY_EDITOR
-        Debug.Log($"{caller}에서 타입 변환..!");
-#endif
         this.movementType = type;
+
+        if (movementType == MovementType.Generic || movementType == MovementType.SlowFall)
+        {
+            cameraType = CameraRoatateType.Simple;
+        }
+        else
+        {
+            cameraType = CameraRoatateType.NonSimple;
+        }
     }
     #endregion
 }

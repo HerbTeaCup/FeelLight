@@ -12,7 +12,12 @@ public class InputHandler : MonoBehaviour
     {
         KeyCode.Space,
         KeyCode.LeftShift,
-        KeyCode.F
+        KeyCode.F,
+
+        KeyCode.W,
+        KeyCode.A,
+        KeyCode.S,
+        KeyCode.D
     };
 
     Dictionary<KeyCode, KeyState> _states = new Dictionary<KeyCode, KeyState>();

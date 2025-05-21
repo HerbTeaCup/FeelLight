@@ -62,7 +62,6 @@ public class PlayerRBMove : BaseMovement, IStateChangeable
         if (_stats.movementType != PlayerStats.MovementType.Generic)
             return;
 
-
         if (_stats.isGrounded == true)
         { 
             Vector3 slopeNormal = _downHit.normal;
@@ -145,7 +144,11 @@ public class PlayerRBMove : BaseMovement, IStateChangeable
     {
         if (_stats.isGrounded == false && InputHandler.Instance.GetTrigger(KeyCode.Space))
         {
-            _stats.SwitchMovmentType(PlayerStats.MovementType.SlowFall);
+            _stats.SwitchType(PlayerStats.MovementType.SlowFall);
+        }
+        if (_stats.isGrounded == false && InputHandler.Instance.GetTrigger(KeyCode.F))
+        {
+            _stats.SwitchType(PlayerStats.MovementType.Gliding);
         }
     }
 }

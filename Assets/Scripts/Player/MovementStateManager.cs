@@ -14,11 +14,15 @@ public class MovementStateManager : MonoBehaviour
     Dictionary<PlayerStats.MovementType, IMovementBase> Tick = new();
     Dictionary<PlayerStats.MovementType, IMovementBase> FixedTick = new();
 
-    IMovementBase _currentBase;
+    Dictionary<PlayerStats.CameraRoatateType, ICameraController> CameraUpdater = new();
 
     private void OnEnable()
     {
         _stats = GetComponent<PlayerStats>();
+    }
+    private void Start()
+    {
+        StartCoroutine(LateFixedUpdate());
     }
 
     private void Update()
@@ -30,7 +34,7 @@ public class MovementStateManager : MonoBehaviour
             return;
         }
 #endif
-        _currentBase = Tick[_stats.movementType];
+        IMovementBase _currentBase = Tick[_stats.movementType];
 
         _currentBase.SpeedUpdate();
         _currentBase.HorizonMove();
@@ -53,6 +57,22 @@ public class MovementStateManager : MonoBehaviour
 #endif
         FixedTick[_stats.movementType].Move();
     }
+
+    /// <summary>
+    /// FixedUpdate문과 순서를 항상 뒤로 두기 위해
+    /// </summary>
+    IEnumerator LateFixedUpdate()
+    {
+        while (true)
+        {
+            yield return new WaitForFixedUpdate();
+            ICameraController camera = CameraUpdater[_stats.cameraType];
+
+            camera.CameraRotate();
+            camera.KeepRotation();
+        }
+    }
+
     public void AddToUpdateSwitch(PlayerStats.MovementType key, IMovementBase value, [CallerMemberName] string caller = "")
     {
         #if UNITY_EDITOR
@@ -74,5 +94,17 @@ public class MovementStateManager : MonoBehaviour
         #endif
 
         FixedTick.Add(key, value);
+    }
+
+    public void AddForCamera(PlayerStats.CameraRoatateType key, ICameraController value, [CallerMemberName] string caller = "")
+    {
+#if UNITY_EDITOR
+        if (CameraUpdater.ContainsKey(key) == false)
+        {
+            Debug.Log($"{caller}에서 key : ({key}) 추가!");
+        }
+#endif
+
+        CameraUpdater.Add(key, value);
     }
 }

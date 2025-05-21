@@ -33,3 +33,9 @@ public interface IStateChangeable
 {
     public void SwitchMovementType();
 }
+
+public interface ICameraController
+{
+    public void KeepRotation();
+    public void CameraRotate();
+}
