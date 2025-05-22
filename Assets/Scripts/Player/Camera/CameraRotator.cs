@@ -48,6 +48,6 @@ public class CameraRotator : BaseCamera
         this.transform.rotation =
             Quaternion.Slerp(this.transform.rotation, Quaternion.Euler(0, _targetRotation, 0), _rotateLerpRatio * Time.deltaTime);
 
-        targetDir = (Quaternion.Euler(0, _targetRotation, 0) * Vector3.forward).normalized;
+        _stats.SetTargetDir((Quaternion.Euler(0, _targetRotation, 0) * Vector3.forward).normalized);
     }
 }

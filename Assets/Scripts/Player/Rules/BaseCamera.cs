@@ -24,14 +24,9 @@ public abstract class BaseCamera : MonoBehaviour, ICameraController
     /// 바라보아야할 타겟
     /// </summary>
     public Vector3? overrideLookTarget { get; set; }
-    /// <summary>
-    /// 카메라 방향 영향 받은 목표 방향이고, 수평으로만 회전함. 
-    /// MoveDir과 비슷하긴 한데, TargetDir은 경사 등등을 고려하지 않은 순수 카메라 기준 목표 방향
-    /// </summary>
-    public Vector3 targetDir { get; protected set; }
 
     /// <summary>
-    /// 목표 방향(targetDir)을 계산하고 회전하는 메소드
+    /// 목표 방향(_stats.targetDir)을 계산하고 회전하는 메소드
     /// </summary>
     public abstract void CameraRotate();
     /// <summary>

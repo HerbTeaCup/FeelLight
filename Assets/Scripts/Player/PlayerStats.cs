@@ -30,8 +30,10 @@ public class PlayerStats : MonoBehaviour
     //Set Open 필드
     public float speed { get; set; } //단순한 Speed 필드이므로 무결성 필요 없음
 
+
     //무결성 필요한 필드들
     public bool isGrounded { get; private set; } = false; //애니메이션, 점프 가능 등 중요한 역할이므로 무결성이 중요함
+    public Vector3 targetDir { get; private set; } //경사로 등등 환경 요인 없이 순수한 카메라 기준 목표 방향
     public Vector3 moveDir { get; private set; } //오류나 실수 시 플레이어의 의도치 않은 조작이 발생하게 됨
     public Vector3 vertical { get; private set; } = Vector3.zero; //마찬가지
     public MovementType movementType { get; private set; } = MovementType.Generic; //움직임 타입
@@ -69,6 +71,12 @@ public class PlayerStats : MonoBehaviour
     public void SetGrounded(bool value)
     {
         isGrounded = value;
+    }
+
+    public void SetTargetDir(Vector3 dir)
+    {
+        dir = dir.normalized;
+        targetDir = dir;
     }
 
     public void SetMoveDir(Vector3 dir)

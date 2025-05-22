@@ -10,9 +10,9 @@ public class CameraAirRotator : BaseCamera
 
     public override void CameraRotate()
     {
-        if (targetDir == Vector3.zero)
+        if (_stats.targetDir == Vector3.zero)
         {
-            targetDir = _stats.moveDir;
+            _stats.SetTargetDir(_stats.moveDir);
         }
 
         Vector3 currentDir = CamArm.forward;//이 부분이 문제인듯
@@ -23,10 +23,10 @@ public class CameraAirRotator : BaseCamera
             + CamArm.up * InputParameter.Instance.MoveInput.y;
         desiredDir = desiredDir.normalized;
 
-        //targetDir의 수평화나 기타 등등은 이동관련 스크립트에서 다듬는 걸로.
+        //_stats.targetDir의 수평화나 기타 등등은 이동관련 스크립트에서 다듬는 걸로.
         //"목표 방향" 이라는 목적이 가장 중요하다고 생각
         float maxRadiansDelta = Mathf.Deg2Rad * _trunSpeed;
-        targetDir = Vector3.RotateTowards(targetDir, desiredDir, maxRadiansDelta * Time.deltaTime, 0f).normalized;
+        _stats.SetTargetDir(Vector3.RotateTowards(_stats.targetDir, desiredDir, maxRadiansDelta * Time.deltaTime, 0f).normalized);
 
         Rotating();
 
@@ -34,13 +34,13 @@ public class CameraAirRotator : BaseCamera
         // 디버그 시각화
         Debug.DrawRay(transform.position, currentDir * 5f, Color.blue);  // 현재 방향
         Debug.DrawRay(transform.position, desiredDir * 5f, Color.green);     // 목표 방향
-        Debug.DrawRay(transform.position, targetDir * 5f, Color.red);   //결과 확인
+        Debug.DrawRay(transform.position, _stats.targetDir * 5f, Color.red);   //결과 확인
 #endif
     }
 
     void Rotating()
     {
-        Vector3 up = targetDir.normalized; // 머리 방향 (transform.up)
+        Vector3 up = _stats.targetDir.normalized; // 머리 방향 (transform.up)
         Vector3 down = Vector3.down;        // 아래 방향 기준
 
         //1. 목표 방향기준 "왼쪽"을 구한다

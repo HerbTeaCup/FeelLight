@@ -24,7 +24,7 @@ public class PlayerSlowFallMove : EffectableBaseMovement
 
     public override void HorizonMove()
     {
-        _stats.SetMoveDir(_camController.targetDir);
+        _stats.SetMoveDir(_stats.targetDir);
     }
 
     public override void VerticalMove()

@@ -18,7 +18,7 @@ public class PlayerGlidingMove : EffectableBaseMovement, IStateChangeable
 
     public override void HorizonMove()
     {
-        Vector3 realMove = new Vector3(_camController.targetDir.x, 0, _camController.targetDir.z);
+        Vector3 realMove = new Vector3(_stats.targetDir.x, 0, _stats.targetDir.z);
         _stats.SetMoveDir(realMove);
         _stats.speed = 10f * Time.deltaTime;
     }

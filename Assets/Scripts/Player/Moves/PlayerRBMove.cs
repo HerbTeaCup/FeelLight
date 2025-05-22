@@ -66,7 +66,7 @@ public class PlayerRBMove : BaseMovement, IStateChangeable
         { 
             Vector3 slopeNormal = _downHit.normal;
 
-            _stats.SetMoveDir(Vector3.ProjectOnPlane(_camController.targetDir, slopeNormal).normalized);
+            _stats.SetMoveDir(Vector3.ProjectOnPlane(_stats.targetDir, slopeNormal).normalized);
 
             float slopeAngle = Vector3.Angle(_downHit.normal, Vector3.up);
 
@@ -78,7 +78,7 @@ public class PlayerRBMove : BaseMovement, IStateChangeable
         }
         else
         {
-            _stats.SetMoveDir(_camController.targetDir); //딱히 어딘가에 서있는 상태가 아니라면 그냥 이동
+            _stats.SetMoveDir(_stats.targetDir); //딱히 어딘가에 서있는 상태가 아니라면 그냥 이동
         }
     }
 

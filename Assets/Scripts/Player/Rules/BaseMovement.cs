@@ -8,7 +8,6 @@ public abstract class BaseMovement : MonoBehaviour, IMovementBase
     protected MovementStateManager _stateManager;
     protected Rigidbody _rb;
     protected PlayerStats _stats;
-    protected CameraRotator _camController;
     protected CapsuleCollider _capsule;
 
     protected RaycastHit _downHit;
@@ -16,7 +15,6 @@ public abstract class BaseMovement : MonoBehaviour, IMovementBase
     protected virtual void Start()
     {
         _stats = GetComponent<PlayerStats>();
-        _camController = GetComponent<CameraRotator>();
         _stateManager = GetComponent<MovementStateManager>();
         _rb = GetComponent<Rigidbody>();
         _capsule = GetComponent<CapsuleCollider>();
