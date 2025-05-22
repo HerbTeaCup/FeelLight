@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class PlayerGlidingMove : EffectableBaseMovement, IStateChangeable
 {
-    float _speedRatio = 2f; //아주 느리게 lerp되어서 속도가 어느정도 유지되게
     /*
      * 필요 정의
      * 
@@ -21,10 +20,16 @@ public class PlayerGlidingMove : EffectableBaseMovement, IStateChangeable
     {
         Vector3 realMove = new Vector3(_camController.targetDir.x, 0, _camController.targetDir.z);
         _stats.SetMoveDir(realMove);
+        _stats.speed = 10f * Time.deltaTime;
     }
     public override void VerticalMove()
     {
+        //InputParameter.Instance.MoveInput.y < 0 으로도 할 수 있지만,
+        //미래의 내가 보기 불편할 것 같음
+        if (InputHandler.Instance.GetHold(KeyCode.S))
+        {
 
+        }
     }
 
     public override void SpeedUpdate()

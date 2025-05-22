@@ -7,6 +7,7 @@ using UnityEngine;
 /// <summary>
 /// 각 이동의 스크립트들의 Update, FixedUpdate를 조절하는 클래스
 /// </summary>
+[RequireComponent(typeof(PlayerStats))]
 public class MovementStateManager : MonoBehaviour
 {
     PlayerStats _stats;
